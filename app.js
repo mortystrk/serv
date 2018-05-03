@@ -2,6 +2,7 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var mongoClient = require("mongodb").MongoClient;
 var objectId = require("mongodb").ObjectID;
+var sign = require('./routes/sign');
 
 var app = express();
 var url = "mongodb://localhost:27017/test";
@@ -43,6 +44,7 @@ app.post("/create", function(req, res) {
     var userName = req.body.userName;
     var postDescription = req.body.postDescription;
     var postText = req.body.postText;
+    var userRating = req.body.userRating;
 
     mongoClient.connect(url, function(err, db) {
         var collection = db.collection('posts');
@@ -57,13 +59,15 @@ app.post("/create", function(req, res) {
                 userAvatar: userAvatar,
                 postRating: postRating,
                 postDescription: postDescription,
-                postText: postText
+                postText: postText,
+                userRating: userRating
             }
 
             collection.insertOne(post, function(err, result) {
                 if (result) {
                     var response = {
-                        text: "successfully"
+                        text: "successfully",
+                        postId: postId
                     }
 
                     res.send(JSON.stringify(response));
@@ -92,7 +96,7 @@ app.get("/get/mainpage", function(req, res) {
                     id: doc.userId,
                     name: doc.userName,
                     age: doc.userAge,
-                    rating: doc.userRating,
+                    userRating: doc.userRating,
                     image: doc.userAvatar
                 };
 
@@ -241,7 +245,7 @@ app.post("/registration", function(req, res) {
 
                     var response = {
                         response: "ok",
-                        id: r.insertedId
+                        id: r.userId
                     };
 
                     res.send(JSON.stringify(response));
